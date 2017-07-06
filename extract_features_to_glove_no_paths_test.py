@@ -12,9 +12,9 @@ from subprocess import Popen,PIPE, STDOUT, call
 def PrintUsage():
   print """
 Usage:
-  extract_features_to_glove_json.py --filelist <file> --max_path_length <number> --max_path_width <number>
+  extract_features_to_glove.py --filelist <file> --max_path_length <number> --max_path_width <number>
 OR
-  extract_features_to_glove_json.py --dir <directory> --max_path_length <number> --max_path_width <number>
+  extract_features_to_glove.py --dir <directory> --max_path_length <number> --max_path_width <number>
 """
   exit(1)
 
@@ -39,7 +39,7 @@ if ((len(sys.argv) > 6) and (sys.argv[5] == "--max_path_width")):
 	MAX_PATH_WIDTH = int(sys.argv[6])
 
 def ExtractFeaturesForFile(f):
-  command = ['nodejs', '--max_old_space_size=64000', 'bin/unuglifyjs', f, '--extract_features', '--max_path_length=' + str(MAX_PATH_LENGTH), '--skip_minified', "--to_glove", '--max_path_width=' +str(MAX_PATH_WIDTH), '--semi_paths', '--json_output']
+  command = ['nodejs', '--max_old_space_size=64000', 'bin/unuglifyjs', f, '--extract_features', '--max_path_length=' + str(MAX_PATH_LENGTH), '--skip_minified', "--to_glove", '--max_path_width=' +str(MAX_PATH_WIDTH), '--no_paths', '--include_labels']
   if (original_features != ""):
 	command.append(original_features)
   #os.system(command)
@@ -56,12 +56,12 @@ def ExtractFeaturesForFile(f):
 
 def ExtractFeaturesForFileList(files):
   global TMP_DIR
-  TMP_DIR = "./tmp/glove_feature_extractor_glove_json%d/" % (os.getpid())
+  TMP_DIR = "./tmp/glove_feature_extractor%d/" % (os.getpid())
   if os.path.exists(TMP_DIR):
     shutil.rmtree(TMP_DIR, ignore_errors=True)
   os.makedirs(TMP_DIR)
   try:
-    p = multiprocessing.Pool(32)
+    p = multiprocessing.Pool(multiprocessing.cpu_count())
     p.map(ExtractFeaturesForFile, files)
     output_files = os.listdir(TMP_DIR)
     for f in output_files:
