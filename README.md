@@ -20,7 +20,7 @@ Setup
 
 Path-Extraction
 ---------------
-> bin\unuglifyjs uri.js --nice_formatting --extract_features --no_hash --max_path_length=<max_length> --max_path_width=<max_width> 
+> bin/unuglifyjs uri.js --nice_formatting --extract_features --no_hash --max_path_length=<max_length> --max_path_width=<max_width> 
 
 This will extract paths between variables and the rest of the elements, in the file uri.js .
 Possible flags:
@@ -28,7 +28,7 @@ Possible flags:
 * --semi_paths - will extract paths from variables to their ancestor non-leaves nodes
 * --include_giv_giv - include paths between AST terminals which are not variables, such as constants.
 
-> python extract_features.py --dir <training_dir> --max_path_length <max_length> --max_path_width <max_width>
+> python extract_features.py --dir <training_dir> --max_path_length <max_length> --max_path_width <max_width> > training 2> out.err
 
 This command runs the nodeJS scripts using multiple processes (much faster for large datasets, when running on a machine with many cores).
 
