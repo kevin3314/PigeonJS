@@ -3,7 +3,6 @@
 
 var UglifyJS = require(".."),
     escodegen = require("escodegen"),
-    esfuzz = require("esfuzz"),
     estraverse = require("estraverse"),
     prefix = Array(20).join("\b") + "    ";
 
@@ -52,52 +51,3 @@ function normalizeInput(ast) {
         }
     });
 }
-
-module.exports = function(options) {
-    console.log("--- UglifyJS <-> Mozilla AST conversion");
-
-    for (var counter = 0; counter < options.iterations; counter++) {
-        process.stdout.write(prefix + counter + "/" + options.iterations);
-
-        var ast1 = normalizeInput(esfuzz.generate({
-            maxDepth: options.maxDepth
-        }));
-        
-        var ast2 =
-            UglifyJS
-            .AST_Node
-            .from_mozilla_ast(ast1)
-            .to_mozilla_ast();
-
-        var astPair = [
-            {name: 'expected', value: ast1},
-            {name: 'actual', value: ast2}
-        ];
-
-        var jsPair = astPair.map(function(item) {
-            return {
-                name: item.name,
-                value: escodegen.generate(item.value)
-            }
-        });
-
-        if (jsPair[0].value !== jsPair[1].value) {
-            var fs = require("fs");
-            var acorn = require("acorn");
-
-            fs.existsSync("tmp") || fs.mkdirSync("tmp");
-
-            jsPair.forEach(function (item) {
-                var fileName = "tmp/dump_" + item.name;
-                var ast = acorn.parse(item.value);
-                fs.writeFileSync(fileName + ".js", item.value);
-                fs.writeFileSync(fileName + ".json", JSON.stringify(ast, null, 2));
-            });
-
-            process.stdout.write("\n");
-            throw new Error("Got different outputs, check out tmp/dump_*.{js,json} for codes and ASTs.");
-        }
-    }
-
-    process.stdout.write(prefix + "Probability of error is less than " + (100 / options.iterations) + "%, stopping.\n");
-};
