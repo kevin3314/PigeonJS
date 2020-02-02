@@ -6,3 +6,4 @@ node_modules/
 /.idea/libraries/UnuglifyJS_node_modules.xml
 /.idea/workspace.xml
 /jsconfig.json
+training*
